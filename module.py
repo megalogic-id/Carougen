@@ -11,12 +11,11 @@ def generate(prompt):
         prompt="""
         Buatkan sebuah materi untuk konten Instagram yang singkat tentang {}
         dalam format list HTML.
-        Setiap sub-judul dan list ditebalkan menggunakan bold, serta diberikan baris baru menggunakan <br> supaya memanjang ke bawah.
-        Berikan juga caption di akhir dengan 20 hashtags
+        Setiap sub-judul dan list ditebalkan menggunakan bold, serta diberikan baris baru menggunakan <br> jadi lebih rapih. Berikan juga caption di akhir dengan 20 hashtags
         """.format(prompt),
         temperature=0.7,
         max_tokens=4000,
-        n=1,
+        n=5,
         stop=None,
         timeout=15
     )
