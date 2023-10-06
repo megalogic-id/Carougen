@@ -7,18 +7,13 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("pages/index.html")
 
 
 @app.route("/generate-content", methods=["POST"])
 def generate_content():
-    # Get the text entered in the input field
-    input_text = request.form.get("text")
-    print(input_text)
-
-    # Generate content based on input_text using your existing generate function
+    input_text = request.form["text"]
     generated_content = generate(input_text)
-
     return generated_content
 
 
