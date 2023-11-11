@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request
-from module import generate
+from helpers import generate
 
 app = Flask(__name__)
 
@@ -15,6 +15,11 @@ def generate_content():
     input_text = request.form["text"]
     generated_content = generate(input_text)
     return generated_content
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template("pages/500.html"), 500
 
 
 if __name__ == "__main__":
