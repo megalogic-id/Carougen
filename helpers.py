@@ -1,22 +1,51 @@
 import os
+from dotenv import load_dotenv
+from flask import Response
 
-import openai
+load_dotenv()
 
-openai.api_key = os.environ.get("OPENAI_API_KEY", 8080)
 
+from openai import OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate(prompt):
-    response = openai.Completion.create(
-        engine="gpt-3.5-turbo-instruct",
-        prompt="""
-        Buatkan sebuah materi untuk konten Instagram yang singkat tentang {}
-        dalam format list HTML.
-        Setiap sub-judul dan list ditebalkan menggunakan bold, serta diberikan baris baru menggunakan <br> jadi lebih rapih. Berikan juga caption di akhir dengan 20 hashtags
-        """.format(prompt),
-        temperature=0.7,
-        max_tokens=4000,
-        n=5,
-        stop=None,
-        timeout=15
+    promptText = """
+    Buatkan sebuah materi untuk konten Instagram yang singkat tentang {}
+    dalam format list HTML.
+    Setiap sub-judul dan list ditebalkan menggunakan bold, serta diberikan baris baru menggunakan <br> jadi lebih rapih. Berikan juga caption di akhir dengan 20 hashtags
+    """.format(prompt)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": promptText}
+        ]
     )
-    return response.choices[0].text.strip()
+    
+    return response.choices[0].message.content
+
+def sendMessage(prompt):
+    promptText = """
+    Buatkan sebuah materi untuk konten Instagram yang singkat tentang {}
+    dalam format list HTML.
+    Setiap sub-judul dan list ditebalkan menggunakan bold, serta diberikan baris baru menggunakan <br> jadi lebih rapih. Berikan juga caption di akhir dengan 20 hashtags
+    """.format(prompt)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": promptText}
+        ],
+        stream=True
+    )
+    return response
+
+def generatedChunk(messages):
+    def event_stream():
+        for line in sendMessage(messages[0]["content"]):
+            print(line)
+            text = line.choices[0].delta.content
+            if(text != None):
+                yield text
+
+    return Response(event_stream(), mimetype='text/event-stream')
