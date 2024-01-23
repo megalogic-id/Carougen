@@ -8,8 +8,7 @@
     <div class="flex flex-col items-center justify-center">
         <h1 class="text-4xl font-bold text-center mt-8">Carougen</h1>
         <div class="w-full max-w-xl p-8 bg-white rounded-lg shadow-md mt-8">
-            <form method="post" action="/generate-content" class="mt-4">
-
+            <form id="post-form" class="mt-4">
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="text">
                         Insert the title of the content
@@ -21,7 +20,7 @@
 
                 <div class="text-center">
                     <button x-data="{ generating: false }"
-                        x-on:click="generating = true; setTimeout(() => { generating = false }, 60000)" type="submit"
+                        x-on:click="generating = true; setTimeout(() => { generating = false }, 30000)" type="submit"
                         class="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full md:w-auto"
                         :class="{ 'opacity-50 cursor-not-allowed': generating }">
                         <span x-show="!generating">Create</span>
@@ -31,7 +30,96 @@
             </form>
         </div>
     </div>
+
+    <div class="max-w-xl mx-auto bg-white rounded overflow-hidden shadow-md mt-10 mb-4" x-data="{ copied: false }">
+        <!-- Header -->
+        <div class="flex justify-between items-center bg-blue-600 p-4">
+            <div class="text-white font-bold text-lg">Generated Content Material : </div>
+            <button @click="copyToClipboard" class="bg-white text-blue-500 border border-blue-500 px-1 py-1 rounded"
+                x-bind:class="{ 'cursor-not-allowed': copied }">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-4">
+            <p class="text-gray-700 leading-relaxed" contenteditable="true" id="generatedContent"></p>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="myToast"
+        class="hidden fixed right-10 bottom-10 px-5 py-4 border-r-8 border-blue-500 bg-white drop-shadow-lg">
+        <p class="text-sm">
+            <!-- Polish the toast with an circle blue "i" (stands for information) -->
+            <span class="mr-2 inline-block px-3 py-1 rounded-full bg-blue-500 text-white font-extrabold">i</span>
+            Text Copied
+        </p>
+    </div>
+
     {% include "components/footer.html" %}
 </body>
+
+<script>
+    const form = document.querySelector("#post-form");
+    const generatedContent = document.querySelector("#generatedContent");
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        // Get the user's message from the form
+        const message = form.elements.text.value;
+
+        // Send a request to the Flask server with the user's message
+        const response = await fetch("/generate-content", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ messages: [{ role: "user", content: message }] }),
+        });
+
+        // Create a new TextDecoder to decode the streamed response text
+        const decoder = new TextDecoder();
+
+        // Set up a new ReadableStream to read the response body
+        const reader = response.body.getReader();
+        let chunks = "";
+
+        // Read the response stream as chunks and append them to the chat log
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks += decoder.decode(value);
+            generatedContent.innerHTML = chunks;
+        }
+
+        Alpine.store('generating', false);
+    });
+
+    function copyToClipboard() {
+        var generatedContent = document.getElementById('generatedContent');
+        var textArea = document.createElement('textarea');
+        textArea.value = generatedContent.textContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        Alpine.store('copied', true);
+        showToast();
+    }
+
+    function showToast() {
+        document.getElementById("myToast").classList.remove("hidden");
+        setTimeout(function () {
+            document.getElementById("myToast").classList.add("hidden");
+        }, 5000);
+    }
+</script>
 
 </html>

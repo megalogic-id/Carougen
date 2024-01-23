@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request
-from helpers import generate
+from helpers import generate, generatedChunk
 
 app = Flask(__name__)
 
@@ -12,8 +12,8 @@ def index():
 
 @app.route("/generate-content", methods=["POST"])
 def generate_content():
-    input_text = request.form["text"]
-    generated_content = generate(input_text)
+    messages = request.json['messages']
+    generated_content = generatedChunk(messages)
     return generated_content
 
 
