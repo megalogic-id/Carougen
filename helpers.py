@@ -11,8 +11,8 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def generate(prompt):
     promptText = """
     Buatkan sebuah materi untuk konten Instagram yang singkat tentang {}
-    dalam format list HTML.
-    Setiap sub-judul dan list ditebalkan menggunakan bold, serta diberikan baris baru menggunakan <br> jadi lebih rapih. Berikan juga caption di akhir dengan 20 hashtags
+    dalam format Markdown
+    Berikan juga caption di akhir dengan 20 hashtags
     """.format(prompt)
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -27,8 +27,8 @@ def generate(prompt):
 def sendMessage(prompt):
     promptText = """
     Buatkan sebuah materi untuk konten Instagram yang singkat tentang {}
-    dalam format list HTML.
-    Setiap sub-judul dan list ditebalkan menggunakan bold, serta diberikan baris baru menggunakan <br> jadi lebih rapih. Berikan juga caption di akhir dengan 20 hashtags
+    dalam format Markdown
+    Berikan juga caption di akhir dengan 20 hashtags
     """.format(prompt)
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",

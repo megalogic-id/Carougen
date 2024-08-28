@@ -9,7 +9,12 @@
       <div class="w-full max-w-xl p-8 bg-white rounded-lg shadow-md mt-8">
         <form id="post-form" class="mt-4">
           <div class="mb-6">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="text"> Insert the title of the content </label>
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="text"
+            >
+              Insert the title of the content
+            </label>
             <input
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="text"
@@ -18,7 +23,12 @@
               name="text"
               required
             />
-            <p id="alertInput" class="text-xs text-red-600 italic opacity-0 transition-opacity duration-500 ease-in-out">*Maaf guys, tolong masukkan judul artikel terlebih dahulu.</p>
+            <p
+              id="alertInput"
+              class="text-xs text-red-600 italic opacity-0 transition-opacity duration-500 ease-in-out"
+            >
+              *Maaf guys, tolong masukkan judul artikel terlebih dahulu.
+            </p>
           </div>
 
           <div class="text-center">
@@ -30,19 +40,37 @@
               :class="{ 'opacity-50 cursor-not-allowed': generating }"
             >
               <span x-show="!generating">Create</span>
-              <span x-show="generating" class="animate-spin">Creating the content material...</span>
+              <span x-show="generating" class="animate-spin"
+                >Creating the content material...</span
+              >
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <div class="p-2 max-w-xl mx-auto bg-white rounded overflow-hidden shadow-md mt-10 mb-4" x-data="{ copied: false }">
+    <div
+      class="p-2 max-w-xl mx-auto bg-white rounded overflow-hidden shadow-md mt-10 mb-4"
+      x-data="{ copied: false }"
+    >
       <!-- Header -->
       <div class="flex justify-between items-center bg-blue-600 p-4 rounded">
-        <div class="text-white font-bold text-lg">Generated Content Material :</div>
-        <button @click="copyToClipboard" class="bg-white text-blue-500 border border-blue-500 px-1 py-1 rounded" x-bind:class="{ 'cursor-not-allowed': copied }">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <div class="text-white font-bold text-lg">
+          Generated Content Material :
+        </div>
+        <button
+          @click="copyToClipboard"
+          class="bg-white text-blue-500 border border-blue-500 px-1 py-1 rounded"
+          x-bind:class="{ 'cursor-not-allowed': copied }"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -54,15 +82,25 @@
 
       <!-- Body -->
       <div class="p-4">
-        <p class="text-gray-700 leading-relaxed" contenteditable="true" id="generatedContent"></p>
+        <p
+          class="text-gray-700 leading-relaxed"
+          contenteditable="true"
+          id="generatedContent"
+        ></p>
       </div>
     </div>
 
     <!-- Toast -->
-    <div id="myToast" class="hidden fixed right-10 bottom-10 px-5 py-4 border-r-8 border-blue-500 bg-white drop-shadow-lg">
+    <div
+      id="myToast"
+      class="hidden fixed right-10 bottom-10 px-5 py-4 border-r-8 border-blue-500 bg-white drop-shadow-lg"
+    >
       <p class="text-sm">
         <!-- Polish the toast with an circle blue "i" (stands for information) -->
-        <span class="mr-2 inline-block px-3 py-1 rounded-full bg-blue-500 text-white font-extrabold">i</span>
+        <span
+          class="mr-2 inline-block px-3 py-1 rounded-full bg-blue-500 text-white font-extrabold"
+          >i</span
+        >
         Text Copied
       </p>
     </div>
@@ -86,7 +124,9 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ messages: [{ role: "user", content: message }] }),
+        body: JSON.stringify({
+          messages: [{ role: "user", content: message }],
+        }),
       });
 
       // Create a new TextDecoder to decode the streamed response text
@@ -101,7 +141,7 @@
         const { done, value } = await reader.read();
         if (done) break;
         chunks += decoder.decode(value);
-        generatedContent.innerHTML = chunks;
+        generatedContent.innerHTML = marked.parse(chunks);
       }
       form.reset();
       Alpine.store("generating", false);
